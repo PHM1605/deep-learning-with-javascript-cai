@@ -37,6 +37,10 @@ function updateScatterWithLines(dataTrace, k, b, N, traceIndex) {
   Plotly.restyle('dataSpace', update, traceIndex)
 }
 
+function setModelWeights(k, b) {
+  model.setWeights([tf.tensor2d([k], [1,1]), tf.tensor1d([b])])
+}
+
 const dataTrace10Epochs = {
   x: [0, 2], y: [0, 0.01],
   name: 'model after 10 epochs',
@@ -62,17 +66,73 @@ Plotly.newPlot(
   {width: 700, title:"Model fit result", xaxis:{title:"size (MB)"}, yaxis:{title:"time (sec)"}}
 )
 
+// Plot loss plot
+const lossTrace = {x:[], y:[]}
+lossPlotAnnotationFont = {family: "sans serif", size:18, color:"#000000"}
+function plotLoss(epoch, loss) {
+  lossTrace.x.push(epoch);
+  lossTrace.y.push(loss);
+  Plotly.newPlot("lossPlot", [lossTrace], {
+    width: 500,
+    height: 500,
+    title: "Loss vs. Epoch",
+    xaxis: {title: "epoch #", range: [0,201]}, 
+    yaxis: {title: "loss", range:[0,0.31]},
+    annotations: [
+      {x:1, y:0.295, xref:"x", yref:"y", text:"Start", showarrow:true, arrowhead:6, arrowcolor:"#000000", font:lossPlotAnnotationFont, ax:60, ay:0},
+      {x:20, y:0.198, xref:"x", yref:"y", text:"Epoch 20", showarrow:true, arrowhead:6, arrowcolor:"#000000", font:lossPlotAnnotationFont, ax:60, ay:0},
+      {x:100, y:0.035, xref:"x", yref:"y", text:"Epoch 100", showarrow:true, arrowhead:6, arrowcolor:"#000000", font:lossPlotAnnotationFont, ax:0, ay:-60},
+      {x:200, y:0.0206, xref:"x", yref:"y", text:"Epoch 200", showarrow:true, arrowhead:6, arrowcolor:"#000000", font:lossPlotAnnotationFont, ax:0, ay:-60}
+    ]
+  })
+}
+
+// Prepare loss surface 2d
+const landscape = {x:[], y:[], z:[], type:'contour'}
+function genLossLandscape() {
+  const kMin=-0.05, kMax=0.15, kStep=0.0035;
+  const bMin=-0.1, bMax=0.15, bStep=0.06;
+  for(let k=kMin; k<=kMax; k+=kStep) {
+    for(let b=bMin; b<=bMax; b+=bStep) {
+      tf.tidy(()=>{
+        setModelWeights(k, b);
+        const loss = model.evaluate(testXs, testYs).dataSync()[0];
+        landscape.x.push(k);
+        landscape.y.push(b);
+        landscape.z.push(loss);
+      })
+    }
+  }
+}
+
+// Plot loss surface 2d with trajectory
+const trajectory = {x:[], y:[], type:"scatter"}
+function recordTrajectory(k, b, loss) {
+  trajectory.x.push(k);
+  trajectory.y.push(b);
+  contourAnnotationFont = {family:"sans serif", size:18, color:"#ffffff"};
+  Plotly.newPlot('lossSurface2dWithTraj', [landscape, trajectory], {
+    height:500, width:500, title:"Loss surface", xaxis:{title:"kernel"}, yaxis:{title:"bias"}, showlegend:false,
+    annotations:[]
+  })
+}
+
 const model = tf.sequential();
 model.add(tf.layers.dense({units: 1, inputShape: [1]}))
 model.compile({optimizer: tf.train.sgd(0.0005), loss:"meanAbsoluteError"});
 let k = 0;
 let b = 0;
-model.setWeights([ tf.tensor2d([k], [1,1]), tf.tensor1d([b]) ]);
+setModelWeights(0, 0);
+genLossLandscape();
+
+
 (async () => {
   await model.fit(trainTensors.sizeMB, trainTensors.timeSec, {
     epochs: 200, 
     callbacks: {
       onEpochEnd: async (epoch, logs) => {
+        plotLoss(epoch+1, logs.loss);
+        recordTrajectory(k, b, logs.loss)
         k = model.getWeights()[0].dataSync()[0]
         b = model.getWeights()[1].dataSync()[0]
         if (epoch === 9) {
