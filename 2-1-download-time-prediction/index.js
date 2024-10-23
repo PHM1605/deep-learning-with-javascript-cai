@@ -92,5 +92,3 @@ model.setWeights([ tf.tensor2d([k], [1,1]), tf.tensor1d([b]) ]);
     }
   })
 })();
-
-model.evaluate(testTensors.sizeMB, testTensors.timeSec).print()
