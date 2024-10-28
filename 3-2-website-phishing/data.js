@@ -25,6 +25,8 @@ export class WebsitePhishingDataset {
     this.dataset = await Promise.all([
       utils.loadCsv(TRAIN_DATA), utils.loadCsv(TRAIN_TARGET), utils.loadCsv(TEST_DATA), utils.loadCsv(TEST_TARGET)
     ]);
-    console.log(this.dataset)
+    let {dataset: trainDataset, vectorMeans, vectorStddevs} = utils.normalizeDataset(this.dataset[0]);
+    this.dataset[0] = trainDataset; // [numSamples, numFeatures]
+    console.log(this.dataset[0])
   }
 }
