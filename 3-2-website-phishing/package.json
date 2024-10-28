@@ -10,7 +10,6 @@
   "license": "ISC",
   "dependencies": {
     "@tensorflow/tfjs": "^4.22.0",
-    "@tensorflow/tfjs-vis": "^1.5.1",
     "papaparse": "^5.4.1",
     "parcel": "^2.12.0"
   },

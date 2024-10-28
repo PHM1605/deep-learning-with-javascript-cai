@@ -88,3 +88,13 @@ export function normalizeDataset(dataset, isTrainData = true, vectorMeans = [], 
 
   return {dataset, vectorMeans, vectorStddevs};
 }
+
+// return [1,0,1,1,...] depending on threshold
+export function binarize(y, threshold) {
+  if (threshold == null) threshold = 0.5;
+  tf.util.assert(threshold >=0 && threshold <= 1, `Expected threshold to be >=0 and <=1, get ${threshold}`);
+  return tf.tidy(()=>{
+    const condition = y.greater(tf.scalar(threshold));
+    return tf.where(condition, tf.onesLike(y), tf.zerosLike(y));
+  })
+}
