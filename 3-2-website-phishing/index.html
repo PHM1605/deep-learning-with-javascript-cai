@@ -1,5 +1,9 @@
 <html>
-  <head>Website phishing</head>
+  <head>Website phishing
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <!-- <link rel="stylesheet" href="index.css"> -->
+    <script src="https://cdn.plot.ly/plotly-2.35.2.min.js" charset="utf-8"></script>
+  </head>
   <body>
     <section>
       <h4>Status</h4>
@@ -7,9 +11,12 @@
     </section>
     <section>
       <h4>Training progress</h4>
-      <div>
-        <div id="plotLoss"></div>
-        <div id="plotAccuracy"></div>
+      <div class="d-flex justify-content-center w-100">
+        <div style="width:60%;" class="d-flex justify-content-between">
+          <div id="plotLoss"></div>
+          <div id="plotAccuracy"></div>
+        </div>
+        
       </div>
       <div>
         <div>ROC Curves</div>
