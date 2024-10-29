@@ -36,6 +36,6 @@ export async function plotROC(fprs, tprs, epoch) {
   return tfvis.render.linechart(
     document.getElementById('rocCurve'),
     {values: rocValues, series: rocSeries},
-    {width: 450, height: 320}
+    {width: 450, height: 450}
   )
 }

@@ -23,6 +23,19 @@ export const render = {
   // config: {width:450, height:320,...}
   linechart: (container, seriesConfig, config) => {
     // Plotly addtraces
+    const traceList = seriesConfig.series.map((seriesName, idx) => (
+      {
+        x: seriesConfig.values[idx].map(onePoint => onePoint.x),
+        y: seriesConfig.values[idx].map(onePoint => onePoint.y),
+        name: seriesName
+      }
+    ));
+    Plotly.newPlot(container, traceList, {
+      width: config.width,
+      height: config.height,
+      xaxis: {title: "FPR"},
+      yaxis: {title: "TPR"}
+    })
   }
 }
 
