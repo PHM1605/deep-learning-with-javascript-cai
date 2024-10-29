@@ -43,7 +43,7 @@ function drawROC(targets, probs, epoch) {
       tprs.push(tpr);
       // accumulate to area for AUC calculation
       if (i>0) {
-        area += 1/2 * (tprs[i] + tprs[i] * (fprs[i-1] - fprs[i]))
+        area += 1/2 * (tprs[i] + tprs[i]) * (fprs[i-1] - fprs[i])
       }
     }
     ui.plotROC(fprs, tprs, epoch);
@@ -94,4 +94,25 @@ data.loadData().then(async () => {
       ui.plotAccuracies(trainLogs);
     }
   }})
+
+  await ui.updateStatus('Running on test data...');
+  tf.tidy(()=>{
+    const result = model.evaluate(testData.data, testData.target, {batchSize:batchSize});
+    const lastTrainLog = trainLogs[trainLogs.length - 1];
+    const testLoss = result[0].dataSync()[0];
+    const testAcc = result[1].dataSync()[0];
+    const probs = model.predict(testData.data);
+    const predictions = utils.binarize(probs).as1D();
+    const precision = tf.metrics.precision(testData.target, predictions).dataSync()[0];
+    const recall = tf.metrics.recall(testData.target, predictions).dataSync()[0];
+    const fpr = falsePositiveRate(testData.target, predictions).dataSync()[0];
+    ui.updateStatus(`Final train-set loss: ${lastTrainLog.loss.toFixed(4)} acc: ${lastTrainLog.acc.toFixed(4)}\n`
+    + `Final validation-set loss: ${lastTrainLog.val_loss.toFixed(4)} acc: ${lastTrainLog.val_acc.toFixed(4)}\n`
+    + `Test-set loss: ${testLoss.toFixed(4)} acc: ${testAcc.toFixed(4)}\n`
+    + `Precision: ${precision.toFixed(4)}\n`
+    + `Recall: ${recall.toFixed(4)}\n`
+    + `False positive rate (FPR): ${fpr.toFixed(4)}\n`
+    + `Area under curve (AUC): ${auc.toFixed(4)}`
+  )
+  })
 })
