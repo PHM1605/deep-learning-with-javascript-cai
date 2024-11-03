@@ -5,12 +5,3 @@ p.section-head {
   font-weight: 500;
   color: #818181;
 }
-
-.with-cols {
-  display: flex;
-  flex-direction: row;
-}
-
-.with-cols > * {
-  flex: 1 1 0;
-}

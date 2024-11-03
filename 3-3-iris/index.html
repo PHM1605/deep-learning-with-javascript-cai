@@ -50,7 +50,7 @@
               <button id="load-local" class="btn btn-outline-dark" disabled="true">Load locally saved model</button>
               <button id="save-local" class="btn btn-outline-dark" disabled="true">Save model locally</button>
               <button id="remove-local" class="btn btn-outline-dark" disabled="true">Remove model locally</button>
-              <span id="load-model-status">Status unavailable.</span>
+              <span id="local-model-status">Status unavailable.</span>
             </div>
           </div>
         </section>
@@ -62,18 +62,18 @@
 
         <section>
           <h4>Training progress</h4>
-          <div class="with-cols">
-            <div>
+          <div class="d-flex">
+            <div style="width:40%;">
               <h5>Loss</h5>
               <div class="canvases" id="lossCanvas"></div>
             </div>
-            <div>
+            <div style="width: 40%">
               <h5>Accuracy</h5>
               <div class="canvases" id="accuracyCanvas"></div>
             </div>
-            <div>
+            <div style="width: 20%">
               <h5>Confusion Matrix (on validation set)</h5>
-              <div id="confusionn-matrix"></div>
+              <canvas id="confusion-matrix"></canvas>
             </div>
           </div>
         </section>
@@ -91,7 +91,7 @@
                 <th>Predicted class</th>
                 <th>Class probabilities</th>
               </tr>
-              <tbody id="evaluate-body">
+              <tbody id="evaluate-tbody">
                 <tr>
                   <td>
                     <input id="petal-length" value="5.1"/>
