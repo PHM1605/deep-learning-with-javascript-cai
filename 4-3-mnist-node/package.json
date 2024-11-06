@@ -1,0 +1,17 @@
+{
+  "name": "4-3-mnist-node",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "train": "node main.js --epochs 2",
+    "test": "node test.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@tensorflow/tfjs-node": "^4.22.0",
+    "argparse": "^2.0.1"
+  }
+}
