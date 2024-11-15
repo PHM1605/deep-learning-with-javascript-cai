@@ -11,11 +11,8 @@
   "dependencies": {
     "@tensorflow/tfjs": "^4.22.0",
     "@tensorflow/tfjs-node": "^4.22.0",
-    "chalk": "^5.3.0",
     "dct": "^0.1.0",
     "kissfft-js": "^0.1.8",
-    "node-wav": "^0.0.2",
-    "ora": "^8.1.1",
-    "vorpal": "^1.12.0"
+    "node-wav": "^0.0.2"
   }
 }
