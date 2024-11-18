@@ -35,6 +35,18 @@ class AudioModel {
     model.summary();
     return model;
   }
+
+  async loadAll(dir, callback) {
+    const promises = [];
+    // ('zero', 0), ('call', 1)
+    this.labels.forEach(async (label, index) =>{
+      callback(`loading label: ${label} (${index})`);
+      promises.push(
+
+      );
+    })
+    let allSpecs = await Promise.all(promises);
+  }
 }
 
 module.exports = {AudioModel};

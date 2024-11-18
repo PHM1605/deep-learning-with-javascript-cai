@@ -15,6 +15,8 @@ vorpal.command('create_model [labels...]')
     cb();
   })
 
+
+  
 vorpal.show();
 
 module.exports = {
