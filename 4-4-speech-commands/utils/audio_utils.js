@@ -1,10 +1,10 @@
-import * as DCT from "dct";
-import * as KissFFT from "kissfft-js";
+const DCT = require("dct");
+const KissFFT = require("kissfft-js");
 const SR = 16000;
 const hannWindowMap = {} // {15: [3,4,1], 20: [],... }
 let context;
 
-export class AudioUtils {
+class AudioUtils {
   startIndex = 0;
   endIndex = 0;
   bandMapper = [];
@@ -37,6 +37,14 @@ export class AudioUtils {
     transform[fftSize+1] = 0;
     transform[1] = 0;
     return transform;
+  }
+
+  fftEnergies(y) {
+    const out = new Float32Array(y.length / 2);
+    for (let i=0; i<y.length; i++) {
+      out[i] = y[i*2] * y[i*2] + y[i*2+1] * y[i*2+1];
+    }
+    return out;
   }
 
   createMelFilterBank(fftSize, melCount = 40, lowHz = 20, highHz = 4000, sr=SR) {
@@ -88,7 +96,9 @@ export class AudioUtils {
 }
 
 // e.g. 8 = 2^3 => exponent = 3 => return 2^4
-export function nextPowerOfTwo(value) {
+function nextPowerOfTwo(value) {
   const exponent = Math.ceil(Math.log2(value)); 
   return 1 << exponent;
 }
+
+module.exports = {AudioUtils, nextPowerOfTwo}

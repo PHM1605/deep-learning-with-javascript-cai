@@ -23,6 +23,30 @@ class WavFileFeatureExtractor {
     this.fftSize = nextPowerOfTwo(this.bufferLength);
     this.melFilterBank = this.audioUtils.createMelFilterBank(this.fftSize/2+1, this.melCount);
   }
+
+  // samples: 1 sound file
+  start(samples) {
+    this.#features = [];
+    const buffers = this.#getFullBuffers(samples);
+    for (const buffer of buffers) {
+      const fft = this.audioUtils.fft(buffer);
+      console.log("FFT is: ", fft)
+      break
+    }
+    return this.#features;
+  }
+
+  // return list of windows from 1 sound file
+  #getFullBuffers(sample) {
+    const out = [];
+    let index = 0;
+    while (index <= samples.length - this.bufferLength) {
+      const buffer = sample.slice(index, index + this.bufferLength);
+      index += this.hopLength;
+      out.push(buffer);
+    }
+    return out;
+  }
 }
 
 module.exports = {
