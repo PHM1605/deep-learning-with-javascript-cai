@@ -22,15 +22,18 @@ class WavFileFeatureExtractor {
     // Mel filterbank size = half the number of samples, as fft array is complex value
     this.fftSize = nextPowerOfTwo(this.bufferLength);
     this.melFilterBank = this.audioUtils.createMelFilterBank(this.fftSize/2+1, this.melCount);
+    console.log("AFTER: ", this.melFilterBank)
   }
 
   // samples: 1 sound file
   start(samples) {
     this.#features = [];
     const buffers = this.#getFullBuffers(samples);
+    // buffers: list of windows of 1 sound file; each window has length of 480 samples
     for (const buffer of buffers) {
-      const fft = this.audioUtils.fft(buffer);
-      console.log("FFT is: ", fft)
+      const fft = this.audioUtils.fft(buffer); // Float32Array of 513 elements
+      const fftEnergies = this.audioUtils.fftEnergies(fft); // Float32Array of 513/2=257 elements
+      const melEnergies = this.audioUtils.applyFilterBank(fftEnergies, this.melFilterBank)
       break
     }
     return this.#features;
@@ -40,7 +43,7 @@ class WavFileFeatureExtractor {
   #getFullBuffers(sample) {
     const out = [];
     let index = 0;
-    while (index <= samples.length - this.bufferLength) {
+    while (index <= sample.length - this.bufferLength) {
       const buffer = sample.slice(index, index + this.bufferLength);
       index += this.hopLength;
       out.push(buffer);

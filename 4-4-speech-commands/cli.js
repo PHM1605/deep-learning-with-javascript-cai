@@ -19,7 +19,7 @@ vorpal.command('create_model [labels...]')
 vorpal.command('load_dataset <dir> <label>', 'Load dataset from the directory with the label')
   .alias('l')
   .action(args => {
-    return model.loadData(args.dir, label, (text) => {
+    return model.loadData(args.dir, args.label, (text) => {
       console.log('Load dataset: ' + text);
     });
   })

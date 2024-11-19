@@ -49,7 +49,7 @@ class AudioUtils {
 
   createMelFilterBank(fftSize, melCount = 40, lowHz = 20, highHz = 4000, sr=SR) {
     const lowMel = this.#hzToMel(lowHz);
-    const hightMel = this.#hzToMel(highHz);
+    const highMel = this.#hzToMel(highHz);
     const mels = []
     const melSpan = highMel - lowMel;
     const melSpacing = melSpan / (melCount + 1);
@@ -57,7 +57,7 @@ class AudioUtils {
       mels[i] = lowMel + melSpacing * (i+1);
     }
     const hzPerSbin = 0.5 * sr / (fftSize-1);
-    this.startIndex = Math.floor(1.5 + lowHz / hzPerBin);
+    this.startIndex = Math.floor(1.5 + lowHz / hzPerSbin);
     this.endIndex = Math.ceil(highHz/hzPerSbin);
     // Maps the input spectrum bin indices to filter bank channels/indices
     let channel = 0;
@@ -86,6 +86,33 @@ class AudioUtils {
       }
     }
     return weights;
+  }
+
+  // both fftEnergies and filterbank is Float32Array of 257 elements
+  applyFilterBank(fftEnergies, filterbank, melCount = 40) {
+    const out = new Float32Array(melCount);
+    // startIndex: 2, endIndex: 128
+    for(let i=this.startIndex; i<=this.endIndex; i++) {
+      const specVal = Math.sqrt(fftEnergies[i]);
+      const weighted = specVal * filterbank[i];
+      let channel = this.bandMapper[i]; // bandMapper: array of 257 integers from 0->39 (frequency mapped to which Mel sbin)
+      if (channel >= 0) {
+        out[channel] += weighted;
+      }
+      channel++;
+      if (channel < melCount) {
+        out[channel] += (specVal - weighted);
+      }
+    }
+    // remove near 0 values and calculate log of 40 Mels
+    for (let i=0; i<out.length; ++i) {
+      let val = out[i];
+      if (val < 1e-12) {
+        val = 1e-12;
+      }
+      out[i] = Math.log(val);
+    }
+    return out;
   }
 
   #hzToMel(hz) {

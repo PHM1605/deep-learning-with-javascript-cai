@@ -13,6 +13,14 @@ class AudioModel {
     this.#labels = labels;
     this.#dataset = dataset;
     this.#featureExtractor = featureExtractor 
+    this.#featureExtractor.config({
+      melCount: 40,
+      bufferLength: 480,
+      hopLength: 160,
+      targetSr: 16000,
+      isMfccEnabled: true,
+      duration: 1.0
+    })
     this.#model = this.#createModel(inputShape);
   }
 
@@ -53,7 +61,11 @@ class AudioModel {
   async loadData(dir, label, callback) {
     const index = this.#labels.indexOf(label);
     const specs = await this.#loadDataArray(dir, callback);
-    
+    console.log("DEBUG", specs)
+    this.#dataset.addExamples(
+      this.#melSpectrogramToInput(specs), 
+      tf.oneHot(tf.fill([specs.length], index, 'int32'), this.#labels.length) // all specs has the label of "index", in oneHot form
+    )
   }
 
   #loadDataArray(dir, callback) {
@@ -64,7 +76,8 @@ class AudioModel {
         }
         let specs = [];
         filenames.forEach(filename => {
-          callback('decoding ' + dir + '/' + filename + '...');
+          callback('decoding ' + dir + '/' + filename);
+          console.log("ERROR HERE: ", this.#decode(dir + '/' + filename))
           const spec = this.#splitSpecs(this.#decode(dir + '/' + filename));
           if (spec) {
             specs = specs.concat(spec);
@@ -78,7 +91,7 @@ class AudioModel {
 
   #decode(filename) {
     const result = wav.decode(fs.readFileSync(filename));
-    return this.featureExtractor.start(result.channelData[0]);
+    return this.#featureExtractor.start(result.channelData[0]);
   }
 
   async train(epochs, trainCallback) {
@@ -98,6 +111,23 @@ class AudioModel {
       return output;
     }
     return undefined;
+  }
+  // specs: [batch, time, mels]
+  #melSpectrogramToInput(specs) {
+    const batch = specs.length;
+    const times = specs[0].length;
+    const freqs = specs[0][0].length;
+    const data = new Float32Array(batch*times*freqs);
+    for (let j=0; j<batch; j++) {
+      const spec = specs[j];
+      for (let i=0; i<times; i++) {
+        const mel = spec[i];
+        const offset = j*freqs* times + i*freqs;
+        data.set(mel, offset);
+      }
+    }
+    const shape = [batch, times, freqs, 1];
+    return tf.tensor4d(data, shape);
   }
 }
 
