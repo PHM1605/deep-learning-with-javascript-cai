@@ -33,7 +33,8 @@ class WavFileFeatureExtractor {
     for (const buffer of buffers) {
       const fft = this.audioUtils.fft(buffer); // Float32Array of 513 elements
       const fftEnergies = this.audioUtils.fftEnergies(fft); // Float32Array of 513/2=257 elements
-      const melEnergies = this.audioUtils.applyFilterBank(fftEnergies, this.melFilterBank)
+      const melEnergies = this.audioUtils.applyFilterBank(fftEnergies, this.melFilterBank) // FLoat32Array of 40 elements
+      console.log("MEL ENERGIES: ", melEnergies)
       break
     }
     return this.#features;
