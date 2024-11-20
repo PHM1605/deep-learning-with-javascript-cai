@@ -7,5 +7,5 @@ load_dataset D:\Minh\Data\speech-commands\right right -->
 
 load_dataset all D:\Minh\Data\speech-commands
 dataset size
-train 5
-save_model /tmp/audio_model
+train 500
+save_model audio_model

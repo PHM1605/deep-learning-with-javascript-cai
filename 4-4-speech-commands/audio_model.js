@@ -116,7 +116,9 @@ class AudioModel {
   }
 
   save(dir) {
-    return this.#model.save('file://' + dir);
+    const filePath = 'file://' + dir;
+    console.log("saved file path: " + filePath)
+    return this.#model.save(filePath);
   }
 
   size() {

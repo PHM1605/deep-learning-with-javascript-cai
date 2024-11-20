@@ -63,7 +63,6 @@ vorpal.command('save_model <filename>')
   .description('save the audio model')
   .action(args => {
     console.log(`saving to ${args.filename}...`)
-    console.log("MODEL:", model)
     return model.save(args.filename).then(() => {
       console.log(`${args.filename} saved.`);
     }, () => console.log(`failed to save ${args.filename}`))
