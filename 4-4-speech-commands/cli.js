@@ -27,12 +27,19 @@ vorpal.command('load_dataset <dir> <label>', 'Load dataset from the directory wi
 vorpal.command('load_dataset all <dir>', "Load all data from the root directory by the labels")
   .alias('la')
   .action((args) => {
-    print("Load dataset...")
+    console.log("Load dataset...")
     return model.loadAll(args.dir, (text, finished) => {
       if (finished) {
         console.log(`Succeed load all: ${text}`);
       }
     })
+  })
+
+vorpal.command('dataset size', 'Show the size of the dataset')
+  .alias('d')
+  .action((args, cb) => {
+    console.log(`dataset size = ${model.size()}`);
+    cb();
   })
 
 vorpal.command('train [epoch]')
@@ -46,12 +53,21 @@ vorpal.command('train [epoch]')
         console.log(`loss: ${logs.loss.toFixed(5)}`);
       },
       onEpochEnd: async (epoch, logs) => {
-        console.log(`epoch: ${epoch}, loss: ${logs.loss.toFixed}, accuracy: ${logs.acc.toFixed(5)}, validation accuracy: ${logs.val_acc.toFixed(5)}`);
+        console.log(`epoch: ${epoch}, loss: ${logs.loss.toFixed(5)}, accuracy: ${logs.acc.toFixed(5)}, validation accuracy: ${logs.val_acc.toFixed(5)}`);
       } 
     })
   })
 
-  
+vorpal.command('save_model <filename>')
+  .alias('s')
+  .description('save the audio model')
+  .action(args => {
+    console.log(`saving to ${args.filename}...`)
+    console.log("MODEL:", model)
+    return model.save(args.filename).then(() => {
+      console.log(`${args.filename} saved.`);
+    }, () => console.log(`failed to save ${args.filename}`))
+  })
 vorpal.show();
 
 module.exports = {

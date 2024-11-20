@@ -5,12 +5,12 @@ class Dataset {
   ys;
   constructor(numClass) {}
   addExamples(examples, labels) {
-    if (this.xs === null) {
+    if (!this.xs) {
       // to keep Dataset's xs and ys; to ensure when calling 'addExamples' in tf.tidy(), we still not dispose 2 Tensors
       this.xs = tf.keep(examples);
       this.ys = tf.keep(labels);
     } else {
-      const oldX = this. xs;
+      const oldX = this.xs;
       this.xs = tf.keep(oldX.concat(examples, 0));
       const oldY = this.ys;
       this.ys = tf.keep(oldY.concat(labels, 0));

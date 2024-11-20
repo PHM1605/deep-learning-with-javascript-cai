@@ -1,9 +1,11 @@
 npm start
-create_model cat bed dog nine
-load_dataset D:\Minh\Data\speech-commands\cat cat
-load_dataset D:\Minh\Data\speech-commands\bed bed
-load_dataset D:\Minh\Data\speech-commands\dog dog
-load_dataset D:\Minh\Data\speech-commands\nine nine
+create_model no one right
 
-train 20
+<!-- load_dataset D:\Minh\Data\speech-commands\no no
+load_dataset D:\Minh\Data\speech-commands\one one
+load_dataset D:\Minh\Data\speech-commands\right right -->
 
+load_dataset all D:\Minh\Data\speech-commands
+dataset size
+train 5
+save_model /tmp/audio_model

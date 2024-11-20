@@ -39,6 +39,12 @@ class AudioUtils {
     return transform;
   }
 
+  // direct cosine transform
+  dct(y) {
+    const scale = Math.sqrt(2.0/y.length);
+    return DCT(y, scale);
+  }
+
   fftEnergies(y) {
     const out = new Float32Array(y.length / 2);
     for (let i=0; i<y.length; i++) {
@@ -119,6 +125,9 @@ class AudioUtils {
     return 1127.0 * Math.log(1.0 + hz/700.0);
   }
 
+  cepstrumFromEnergySpectrum(melEnergies) {
+    return this.dct(melEnergies);
+  }
 
 }
 

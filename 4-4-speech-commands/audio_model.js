@@ -49,19 +49,33 @@ class AudioModel {
   async loadAll(dir, callback) {
     const promises = [];
     // ('zero', 0), ('call', 1)
-    this.labels.forEach(async (label, index) =>{
+    this.#labels.forEach(async (label, index) =>{
       callback(`loading label: ${label} (${index})`);
       promises.push(
-        
-      );
+        this.#loadDataArray(path.resolve(dir, label), callback)
+        .then( v => {
+          callback(`finished loading label: ${label} (${index})`, true);
+          return [v, index]
+        })
+      );      
     })
+    // [ [[...], 0], [[...], 1], ... ]
     let allSpecs = await Promise.all(promises);
+    // [[spectrogram0, 0], [spectrogram1, 0], [spec2, 1], ...]
+    allSpecs = allSpecs.map((specs, i) => {
+      const index = specs[1];
+      return specs[0].map(spec=>[spec, index])
+    })
+    .reduce((acc, currentValue) => acc.concat(currentValue), []); // [[array, 0], [array, 0],..., [array, 1], ...]
+    tf.util.shuffle(allSpecs);
+    const specs = allSpecs.map(spec => spec[0]);
+    const labels = allSpecs.map(spec => spec[1]);
+    this.#dataset.addExamples(this.#melSpectrogramToInput(specs), tf.oneHot(labels, this.#labels.length));
   }
 
   async loadData(dir, label, callback) {
     const index = this.#labels.indexOf(label);
     const specs = await this.#loadDataArray(dir, callback);
-    console.log("DEBUG", specs)
     this.#dataset.addExamples(
       this.#melSpectrogramToInput(specs), 
       tf.oneHot(tf.fill([specs.length], index, 'int32'), this.#labels.length) // all specs has the label of "index", in oneHot form
@@ -77,14 +91,13 @@ class AudioModel {
         let specs = [];
         filenames.forEach(filename => {
           callback('decoding ' + dir + '/' + filename);
-          console.log("ERROR HERE: ", this.#decode(dir + '/' + filename))
           const spec = this.#splitSpecs(this.#decode(dir + '/' + filename));
           if (spec) {
             specs = specs.concat(spec);
           }
           callback('decoding ' + dir + '/' + filename + '...done');
         });
-        resolve(specs);
+        resolve(specs); // [n_samples, time, freq, 1]
       })
     })
   }
@@ -100,6 +113,14 @@ class AudioModel {
       this.#dataset.ys,
       { batchSize: 64, epochs: epochs||100, shuffle:true, validationSplit:0.1, callbacks: trainCallback }
     )
+  }
+
+  save(dir) {
+    return this.#model.save('file://' + dir);
+  }
+
+  size() {
+    return this.#dataset.xs ? `xs: ${this.#dataset.xs.shape} ys: ${this.#dataset.ys.shape}` : '0';
   }
 
   #splitSpecs(spec) {

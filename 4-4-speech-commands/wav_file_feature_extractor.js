@@ -22,7 +22,6 @@ class WavFileFeatureExtractor {
     // Mel filterbank size = half the number of samples, as fft array is complex value
     this.fftSize = nextPowerOfTwo(this.bufferLength);
     this.melFilterBank = this.audioUtils.createMelFilterBank(this.fftSize/2+1, this.melCount);
-    console.log("AFTER: ", this.melFilterBank)
   }
 
   // samples: 1 sound file
@@ -34,8 +33,13 @@ class WavFileFeatureExtractor {
       const fft = this.audioUtils.fft(buffer); // Float32Array of 513 elements
       const fftEnergies = this.audioUtils.fftEnergies(fft); // Float32Array of 513/2=257 elements
       const melEnergies = this.audioUtils.applyFilterBank(fftEnergies, this.melFilterBank) // FLoat32Array of 40 elements
-      console.log("MEL ENERGIES: ", melEnergies)
-      break
+      const mfccs = this.audioUtils.cepstrumFromEnergySpectrum(melEnergies); // FLoat32Array of 40 elements
+      if (this.isMfccEnabled) {
+        this.#features.push(mfccs); // FLoat32Array of 40 elements
+      }
+      else {
+        this.#features.push(melEnergies);
+      }
     }
     return this.#features;
   }
